@@ -1,0 +1,55 @@
+/* home.css */
+.home-container {
+    text-align: center;
+    padding: 40px;
+    background-color: #f9f9f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .home-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+  }
+  
+  .home-description {
+    margin-top: 15px;
+    font-size: 1.1rem;
+    color: #555;
+  }
+  
+  .home-buttons {
+    margin-top: 25px;
+  }
+  
+  .home-buttons a {
+    text-decoration: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease-in-out;
+    margin: 0 10px;
+  }
+  
+  .staff-btn {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .staff-btn:hover {
+    background-color: #0056b3;
+  }
+  
+  .student-btn {
+    background-color: #28a745;
+    color: white;
+  }
+  
+  .student-btn:hover {
+    background-color: #1e7e34;
+  }
+  
