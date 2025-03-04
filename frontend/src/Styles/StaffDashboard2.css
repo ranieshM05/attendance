@@ -1,69 +1,84 @@
 .staff-dashboard {
     max-width: 900px;
-    margin: 40px auto;
+    margin: 20px auto;
     padding: 20px;
     background: #f8f9fa;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     text-align: center;
-    font-family: Arial, sans-serif;
-}
-
-h2 {
-    color: #333;
+  }
+  
+  .staff-dashboard h2 {
+    color: #343a40;
     margin-bottom: 20px;
-    font-size: 24px;
-}
-
-input[type="file"] {
-    display: block;
-    margin: 20px auto;
-    padding: 10px;
+  }
+  
+  input[type="file"] {
+    margin: 10px 0;
+    padding: 8px;
     border: 1px solid #ccc;
     border-radius: 5px;
     background: #fff;
-    cursor: pointer;
-}
-
-table {
+  }
+  
+  table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    background: #fff;
-}
-
-table th, table td {
+    background: white;
+  }
+  
+  th, td {
     padding: 12px;
     border: 1px solid #ddd;
-    text-align: left;
-}
-
-table th {
+    text-align: center;
+  }
+  
+  th {
     background: #007bff;
     color: white;
-}
-
-table tbody tr:nth-child(even) {
-    background: #f2f2f2;
-}
-
-input[type="radio"] {
-    width: 18px;
-    height: 18px;
+    font-weight: bold;
+  }
+  
+  td input[type="radio"] {
+    transform: scale(1.2);
     cursor: pointer;
-}
-
-.save-btn {
-    padding: 8px 12px;
-    font-size: 14px;
+  }
+  
+  .save-btn {
+    margin-top: 15px;
+    padding: 10px 20px;
     background: #28a745;
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.save-btn:hover {
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  
+  .save-btn:hover {
     background: #218838;
-}
+  }
+  
+  button {
+    padding: 10px 15px;
+    margin-top: 15px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+  }
+  
+  button:hover {
+    background: #c82333;
+  }
+  
+  p {
+    font-size: 18px;
+    color: #6c757d;
+  }
+  

@@ -1,39 +1,47 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../Styles/Studentlogin1.css";
+import "../Styles/StudentSignup.css";
 
-const StudentLogin = () => {
+const StudentSignupForm = () => {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post("http://localhost:5000/api/students/login", { email, password });
+      const response = await axios.post("http://localhost:5000/api/students/signup", { name, email, password });
 
       if (response.data.success) {
         localStorage.setItem("studentToken", response.data.token);
         navigate("/student-dashboard"); // ✅ Redirect to Student Dashboard
       } else {
-        setError("User not found. Redirecting to signup...");
-        setTimeout(() => navigate("/student-signup"), 2000); // ✅ Redirect to Signup
+        setError(response.data.message);
       }
     } catch (error) {
-      console.error("Login error:", error);
-      setError("Invalid email or password. Redirecting to signup...");
-      setTimeout(() => navigate("/student-signup"), 2000);
+      console.error("Signup error:", error);
+      setError("Error signing up. Please try again.");
     }
   };
 
   return (
     <div className="signup-container">
-      <h2>Student Login</h2>
+      <h2>Student Signup</h2>
       {error && <p className="error-message">{error}</p>}
 
-      <form onSubmit={handleLogin}>
+      <form onSubmit={handleSignup}>
+        <label>Name:</label>
+        <input 
+          type="text" 
+          value={name} 
+          onChange={(e) => setName(e.target.value)} 
+          required 
+          placeholder="Enter your name"
+        />
+
         <label>Email:</label>
         <input 
           type="email" 
@@ -52,13 +60,13 @@ const StudentLogin = () => {
           placeholder="Enter your password"
         />
 
-        <button type="submit">Login</button>
+        <button type="submit">Signup</button>
       </form>
 
-      <p>Don't have an account?</p>
-      <button onClick={() => navigate("/student-signup-form")}>Signup</button>
+      <p>Already have an account?</p>
+      <button onClick={() => navigate("/student-signup")}>Login</button>
     </div>
   );
 };
 
-export default StudentLogin;
+export default StudentSignupForm;
