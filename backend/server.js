@@ -9,14 +9,12 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-// ✅ Connect to MongoDB once (ONLY in `db.js`)
+// ✅ Connect to MongoDB
 connectDB();
 
-// Import routes
-const authRoutes = require("./routes/authRoutes");
+// Import Routes
 const studentRoutes = require("./routes/studentRoutes");
 
-app.use("/api/auth", authRoutes);
 app.use("/api/students", studentRoutes);
 
 const PORT = process.env.PORT || 5000;

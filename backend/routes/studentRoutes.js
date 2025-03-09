@@ -1,131 +1,73 @@
 const express = require("express");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
-const Student = require("../models/Students"); // ✅ Corrected Model Import
+const Student = require("../models/Students"); // Student details model
+const StudentAuth = require("../models/StudentAuth"); // Auth model
 
-// 📌 Fetch all students
-router.get("/", async (req, res) => {
-  try {
-    const students = await Student.find();
-    res.status(200).json(students);
-  } catch (error) {
-    console.error("Error fetching students:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-// 📌 Fetch a single student by email (For login & dashboard)
-router.get("/:email", async (req, res) => {
-  try {
-    const student = await Student.findOne({ email: req.params.email });
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-    res.status(200).json(student);
-  } catch (error) {
-    console.error("Error fetching student:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-// 📌 Student Login Route
+// 🔹 Student Login Route
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+  console.log("📥 Incoming login request:", req.body); // Debugging
 
   try {
-    const student = await Student.findOne({ email });
+    const { email, password } = req.body;
 
-    if (!student) {
-      return res.status(404).json({ success: false, message: "Student not found" });
+    // ✅ Check if email and password are provided
+    if (!email || !password) {
+      console.log("❌ Missing email or password");
+      return res.status(400).json({ success: false, message: "Email and password are required" });
     }
 
-    if (student.password !== password) {
-      return res.status(401).json({ success: false, message: "Incorrect password" });
+    // ✅ Find student in StudentAuth collection (for login credentials)
+    const studentAuth = await StudentAuth.findOne({ email });
+    console.log("🔍 StudentAuth result:", studentAuth);
+
+    if (!studentAuth) {
+      console.log("❌ No account found for this email:", email);
+      return res.status(400).json({ success: false, message: "Invalid email or password" });
     }
 
-    res.status(200).json({ success: true, message: "Login successful", token: "fake-jwt-token", student });
-  } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
+    // ✅ Compare the entered password with the stored hashed password
+    const isMatch = await bcrypt.compare(password, studentAuth.password);
+    console.log("🔍 Password match:", isMatch);
 
-// 📌 Student Signup Route
-router.post("/signup", async (req, res) => {
-  const { name, email, password, rollNumber } = req.body;
-
-  try {
-    const existingStudent = await Student.findOne({ email });
-
-    if (existingStudent) {
-      return res.status(400).json({ success: false, message: "Email already registered" });
+    if (!isMatch) {
+      console.log("❌ Incorrect password for:", email);
+      return res.status(400).json({ success: false, message: "Invalid email or password" });
     }
 
-    const newStudent = new Student({ name, email, password, rollNumber });
-    await newStudent.save();
+    // ✅ Retrieve full student details from Students collection
+    const studentDetails = await Student.findOne({ email });
+    console.log("🔍 Student details result:", studentDetails);
 
-    res.status(201).json({ success: true, message: "Signup successful", student: newStudent });
-  } catch (error) {
-    console.error("Signup error:", error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
-
-// 📌 Upload multiple students from Excel
-router.post("/upload", async (req, res) => {
-  try {
-    const { students } = req.body;
-
-    if (!students || students.length === 0) {
-      return res.status(400).json({ message: "No student data provided" });
+    if (!studentDetails) {
+      console.log("❌ Student details not found for:", email);
+      return res.status(400).json({ success: false, message: "Student details not found" });
     }
 
-    await Student.insertMany(students);
-    res.status(201).json({ message: "Students uploaded successfully!" });
-  } catch (error) {
-    console.error("Error uploading students:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
+    // ✅ Generate JWT Token
+    const token = jwt.sign(
+      { id: studentDetails._id, email: studentDetails.email, role: "student" },
+      "your_jwt_secret", // 🔹 Change this to an environment variable
+      { expiresIn: "1h" }
+    );
 
-// 📌 Update attendance for multiple students (Optimized)
-router.put("/update", async (req, res) => {
-  try {
-    const { updates } = req.body;
-
-    if (!updates || updates.length === 0) {
-      return res.status(400).json({ message: "No attendance updates provided" });
-    }
-
-    // ✅ Bulk update using `updateMany`
-    const updateOperations = updates.map(update => ({
-      updateOne: {
-        filter: { _id: update.id },
-        update: { $set: { attendance: update.attendance } }
+    console.log("✅ Login successful for:", email);
+    res.status(200).json({
+      success: true,
+      message: "Login successful!",
+      token,
+      student: {
+        id: studentDetails._id,
+        name: studentDetails.name,
+        email: studentDetails.email,
+        rollNumber: studentDetails.rollNumber,
       }
-    }));
+    });
 
-    await Student.bulkWrite(updateOperations);
-
-    res.status(200).json({ message: "Attendance updated successfully!" });
   } catch (error) {
-    console.error("Error updating attendance:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-// 📌 Delete a Student by Email
-router.delete("/:email", async (req, res) => {
-  try {
-    const student = await Student.findOneAndDelete({ email: req.params.email });
-
-    if (!student) {
-      return res.status(404).json({ message: "Student not found" });
-    }
-
-    res.status(200).json({ message: "Student deleted successfully" });
-  } catch (error) {
-    console.error("Error deleting student:", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("🚨 Login error:", error);
+    res.status(500).json({ success: false, message: "Internal server error", error: error.message });
   }
 });
 

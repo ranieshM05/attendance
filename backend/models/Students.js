@@ -5,8 +5,7 @@ const StudentSchema = new mongoose.Schema(
   {
     name: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    rollNumber: { type: String, required: true, unique: true, trim: true },
-    password: { type: String, required: true, minlength: 6 }, // 🔑 Added password field
+    rollNumber: { type: String, required: true, unique: true }, 
     attendance: [
       {
         date: { type: Date, default: Date.now }, // 📅 Store attendance dates

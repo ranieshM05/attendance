@@ -11,22 +11,29 @@ const StudentLogin = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError(""); // Reset previous errors
+  
     try {
-      const response = await axios.post("http://localhost:5000/api/students/login", { email, password });
-
+      const response = await axios.post("http://localhost:5000/api/students/login", 
+        { email, password }, 
+        { headers: { "Content-Type": "application/json" } }
+      );
+  
+      console.log("✅ Login response:", response.data);
+  
       if (response.data.success) {
         localStorage.setItem("studentToken", response.data.token);
-        navigate("/student-dashboard"); // ✅ Redirect to Student Dashboard
+        alert("Login successful! Redirecting to dashboard...");
+        navigate("/student-dashboard");
       } else {
-        setError("User not found. Redirecting to signup...");
-        setTimeout(() => navigate("/student-signup"), 2000); // ✅ Redirect to Signup
+        setError(response.data.message || "Invalid credentials. Try again.");
       }
     } catch (error) {
-      console.error("Login error:", error);
-      setError("Invalid email or password. Redirecting to signup...");
-      setTimeout(() => navigate("/student-signup"), 2000);
+      console.error("🚨 Login error:", error.response ? error.response.data : error.message);
+      setError(error.response?.data?.message || "Something went wrong. Try again.");
     }
   };
+  
 
   return (
     <div className="signup-container">
@@ -35,22 +42,10 @@ const StudentLogin = () => {
 
       <form onSubmit={handleLogin}>
         <label>Email:</label>
-        <input 
-          type="email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
-          placeholder="Enter your email"
-        />
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 
         <label>Password:</label>
-        <input 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
-          placeholder="Enter your password"
-        />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
 
         <button type="submit">Login</button>
       </form>

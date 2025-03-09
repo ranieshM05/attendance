@@ -1,31 +1,41 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../Styles/StudentSignup.css";
 
 const StudentSignupForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState(""); // ✅ Ensure password is handled
+  const [rollNumber, setRollNumber] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    const studentData = {
+      name,
+      email,
+      password,
+      rollNumber,
+    };
+  
     try {
-      const response = await axios.post("http://localhost:5000/api/students/signup", { name, email, password });
-
+      const response = await axios.post("http://localhost:5000/api/students/signup", studentData, {
+        headers: { "Content-Type": "application/json" }, 
+      });
+  
       if (response.data.success) {
-        localStorage.setItem("studentToken", response.data.token);
-        navigate("/student-dashboard"); // ✅ Redirect to Student Dashboard
+        alert("Signup successful! Redirecting to login...");
+        navigate("/student-login");
       } else {
         setError(response.data.message);
       }
-    } catch (error) {
+    } catch (error) {  
       console.error("Signup error:", error);
       setError("Error signing up. Please try again.");
     }
   };
+  
 
   return (
     <div className="signup-container">
@@ -34,37 +44,22 @@ const StudentSignupForm = () => {
 
       <form onSubmit={handleSignup}>
         <label>Name:</label>
-        <input 
-          type="text" 
-          value={name} 
-          onChange={(e) => setName(e.target.value)} 
-          required 
-          placeholder="Enter your name"
-        />
+        <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+
+        <label>Roll Number:</label>
+        <input type="text" value={rollNumber} onChange={(e) => setRollNumber(e.target.value)} required />
 
         <label>Email:</label>
-        <input 
-          type="email" 
-          value={email} 
-          onChange={(e) => setEmail(e.target.value)} 
-          required 
-          placeholder="Enter your email"
-        />
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
 
         <label>Password:</label>
-        <input 
-          type="password" 
-          value={password} 
-          onChange={(e) => setPassword(e.target.value)} 
-          required 
-          placeholder="Enter your password"
-        />
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
 
         <button type="submit">Signup</button>
       </form>
 
       <p>Already have an account?</p>
-      <button onClick={() => navigate("/student-signup")}>Login</button>
+      <button onClick={() => navigate("/student-login")}>Login</button>
     </div>
   );
 };
